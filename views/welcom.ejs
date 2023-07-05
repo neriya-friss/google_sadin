@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS -->
+        <script src="/javascripts/jquery.min.js"></script>    
+        <script src="/javascripts/bootstrap.min.js"></script>
+        <link href="/stylesheets/bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/style.css"> 
+        <title> hatmaz </title>    
+    </head>
+    <body>
+        <% if(session.user_id) { %>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="/logout">התנתק</a>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        
+                        <form class="d-flex  me-1" role="search" method="post" action="/user_search">
+                            <input class="form-control me-5" type="search" name="text_to_search" placeholder="מה אתה מחפש?" value="<%= user_text_to_search %>">
+                            <button class="btn btn-secondary me-1" type="submit" id="search_bth"> חיפוש </button>
+                        </form>
+
+                        <div class="dropdown me-3">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              בחירת תרגיל
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                              <li><a class="dropdown-item" href="#">תרגיל 1</a></li>
+                              <li><a class="dropdown-item" href="#">תרגיל 2</a></li>
+                              <li><a class="dropdown-item" href="#">תרגיל 3</a></li>
+                            </div>
+                        </div>
+                            <ul class="navbar-nav me-auto  mb-2 mb-lg-0">
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/welcom">דף הבית</a>
+                                </li>
+                                <% if(role_id == 1) { %>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" aria-current="page" href="#">תרגילים</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="#">משתמשים</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="/add_user"> הוסף משתמש </a>
+                                </li>
+                                <% } %>
+                            </ul>
+                    </div>
+                </div>
+            </nav>    
+            
+            <a href="/add_cube"> <img class="add_cube" src="../images/add_cube.png" title="הוסף קוביה"> </a>
+            <div class="container">
+                <h1 class="mt-1  text-center "><b> מערכת חתמ"צ </b></h1>
+                <h2 class="text-center">  <span id="timing"> </span> <%= user_hebrow_name %></h2>
+                <div class="row">    
+                    <% for(var i = 0; i < all_cubes.length; i++) { %>
+                        <div class="col-md-4 text-center">
+                            <div class="card card-01">
+                                <div class="card-body">
+                                    <p> קוביה <%= all_cubes[i].cube_id %></p>
+                                    <h4 class="card-title"> <%= all_cubes[i].title %> </h4>
+                                    <p class="card-text" > <%= all_cubes[i].content %> </p>
+                                    <a href="#"> </a>
+                                    <form class="edit_form" method="post" action="/edit_cube_form">
+                                        <input type="hidden" name="cube_id" value="<%= all_cubes[i].cube_id %>">
+                                        <button class="delbth"> <img class="edit_img_cube" src="../images/edit_cube.png" title="ערוך קוביה">  </button>
+                                    </form>
+                                    <form class="del_form" method="post" action="/delete_cube">
+                                        <input type="hidden" name="cube_id" value="<%= all_cubes[i].cube_id %>">
+                                        <button class="delbth"> <img class="delete_img_cube" src="../images/delete_cube.png" title="מחק קוביה"> </button>
+                                    </form>
+                                    <p class="lase_time_update"> נערך לאחרונה: <%= all_cubes[i].time_text %> </p>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>  
+                </div>
+               
+                     
+              
+            </div>
+                
+        <% } else { %>
+            <h1> אתה לא מחובר </h1>
+        <% } %>
+
+        <script>
+			let date_now = new Date();
+			let hours = date_now.getHours()
+			console.log(hours);
+			if(hours >= 5 && hours <=11){
+				document.getElementById("timing").innerHTML = "בוקר טוב "
+			}
+			else if(hours >= 12 && hours <=17){
+				document.getElementById("timing").innerHTML = "צהרים טובים "
+			}
+			else if(hours >= 18 && hours <=21){
+				document.getElementById("timing").innerHTML = "ערב טוב "
+			}
+			else{
+				document.getElementById("timing").innerHTML = "לילה טוב "
+			}
+
+            $(".dropdown-menu li a").click(function(){
+  
+                $(".btn:first-child").html($(this).text()+' <span class="caret"></span>');
+              });
+          </script>
+    </body>
+</html>

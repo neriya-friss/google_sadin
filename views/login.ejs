@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS -->
+        <link href="/stylesheets/bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/style.css"> 
+        <title> hatmaz </title>
+    </head>
+    <body>
+
+        <div class="container">
+            <h1 class="mt-5 mb-5 text-center text-primary"><b> התחברות למערכת חתמ"צ </b></h1>
+
+            <div class="row mt-5">
+                <div class="col-md-3">&nbsp;</div>
+                <div class="col-md-6">
+                <% if(session.user_id) { %>
+                    <h1>אתה כבר מחובר...</h1>
+                    <a href="/logout" class="btn btn-primary">Logout</a>
+                <% } else { %>
+
+                    <div class="card" dir="rtl">
+                        <div class="card-header">התחברות</div>
+                        <div class="card-body">
+                            <form method="post" action="/login">
+                                <div class="mb-3">
+                                    <label>שם משתמש</label>
+                                    <input type="text" name="user_name" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label>סיסמה</label>
+                                    <input type="password" name="user_password" class="form-control" />
+                                </div>
+                                <div class="mb-3 text-center">
+                                    <input type="submit" class="btn btn-primary form_bth" value="התחבר" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                <% } %>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
