@@ -86,7 +86,7 @@ router.get('/welcom', function(req, res, next) {
             console.log("i got alllll cubes!");
             all_cubes = data.rows;
         } 
-    res.render('welcom', { user_hebrow_name: req.session.user_hebrow_name , role_id:req.session.user_role_id, session : req.session, all_cubes : all_cubes });
+    res.render('welcom', { user_hebrow_name: req.session.user_hebrow_name , role_id:req.session.user_role_id, session : req.session, all_cubes : all_cubes, user_text_to_search: text_to_search });
   });
 });
 
