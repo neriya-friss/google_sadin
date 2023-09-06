@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "build": "webpack --mode production && your-custom-optimization-script"
+    "start": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +21,10 @@
     "sequelize": "^6.31.1"
   },
   "devDependencies": {
+    "babel-loader": "^9.1.3",
+    "html-minifier": "^4.0.0",
     "nodemon": "^2.0.22",
-    "webpack": "^5.88.2"
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   }
 }
