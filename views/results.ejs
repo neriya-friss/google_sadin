@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" dir="rtl">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS -->
+        <link href="/stylesheets/bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/style.css"> 
+        <title> Google sadin </title>
+    </head>
+
+    <body id="body_results">
+        <div id="header">
+            <div id="topbar">  
+                <div id="googleimg_results">
+                    <h2 class="google-logo_results">ס<span style="color: #ea4335">ד</span><span style="color: #fbbc05">י</span><span style="color: #34a853; margin-left:8px;">ן</span>ד<span style="color: #ea4335">ג</span><span style="color: #fbbc05">י</span><span style="color: #34a853">ט</span>ל<span style="color: #ea4335">י</h2>
+                </div>  
+                <form id="searchForm_results" method="post" action="/user_search">
+                    <input id="inputspan" type="text" name="search_value" value="<%=user_text_to_search%>" placeholder="הקלד שאלה או נושא לחיפוש" required><br>
+                </form>
+            </div>
+            <div id="optionsbar">
+                <ul id="optionsmenu1">
+                    <li id="optionsmenuactive">כל התוצאות</li>
+                </ul>
+            </div>
+        </div>
+        <div id="searchresultsarea">
+            <p id="searchresultsnumber"><%= results.length %> תוצאות</p>
+            <% if (results.length == 0) { %>
+                <p id="no_results">
+                    החיפוש שלך לא תאם אף מסמך. <br><br>
+                    הצעות:<br>
+                    <ul>
+                        <li>לוודא שכל המילים מאויתות נכון</li>
+                        <li>לנסות מילות מפתח אחרות</li>
+                        <li>לנסות מילות מפתח כלליות יותר</li>
+                        <li>לנסות פחות מילות מפתח</li>
+                    </ul>
+                </p>
+            <% } else { %>
+                <div class="all_results">
+                    <% for(let i = 0; i < results.length; i++) { %>
+                        <div class="searchresult" onclick="open_result('<%=JSON.stringify(results[i])%>')">
+                            <h2><%= results[i].question %></h2>
+                            <!--<a href="<%=results[i].some_link %>"> <%=results[i].some_link %> </a> <button>▼</button> -->
+                            <p><%= results[i].answer %> </p>
+                            <p class="relevance_score">רמת דיוק: <%= Math.ceil(results[i].relevance_score*100) %>%</p>
+                            <p class="relevance_score">נצפה <%= Math.ceil(results[i].search_counter) %> פעמים </p>
+                        </div>
+                    <% } %>    
+                </div>   
+            <% } %>
+        </div>
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close">&times;</span>
+                    <h2 id="model_question"></h2>
+                </div>
+                <div class="modal-body">
+                    <pre id="model_ans"></pre>
+                </div>
+                <div class="modal-footer">
+                    <h3 id="model_links"></h3>
+                    <div id="model_ptt"></div>
+                    <div id="model_vedio"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--
+        <div id="footer">
+            <div id="footerlocation">
+                <p> לשאלות נוספות ניתן לפנות לידידיה שרף</p>
+            </div>
+        </div>
+        -->
+        <script>
+            const searchInput = document.getElementById('inputspan');
+            const searchForm = document.getElementById('searchForm_results');
+    
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    if(searchInput.val() != ''){
+                    event.preventDefault(); // Prevent default form submission
+                    searchForm.submit(); // Submit the form
+                    }
+                }
+            });
+
+
+            function open_result(result){
+                try {
+                    //console.log("Raw JSON:", result); // Log the raw JSON string
+                    // Sanitize the data
+                    let sanitized_result = sanitizeData(result);
+                    //console.log("Sanitized JSON:", sanitized_result); // Log the sanitized JSON string
+                    
+                    // Parse the sanitized JSON string
+                    let json_result = JSON.parse(sanitized_result);
+                    
+                    let modal = document.getElementById("myModal");
+                    document.getElementById("model_question").innerHTML = json_result.question;
+                    document.getElementById("model_ans").innerHTML = json_result.answer;
+                    if(json_result.some_link != null){
+                        document.getElementById("model_links").innerHTML = "<a href="+json_result.some_link+" target='_blank'>"+json_result.some_link+"</a>";
+                    }
+                    else{
+                        document.getElementById("model_links").innerHTML = "";
+                    }
+                    if(json_result.ppt != null){
+                        document.getElementById("model_ptt").innerHTML = "<img class='ptt_img' src='/ppt/"+json_result.ppt+".png' width='100%'>";
+                    }
+                    else{
+                        document.getElementById("model_ptt").innerHTML = "";
+                    }
+                    if(json_result.video != null){
+                        document.getElementById("model_vedio").innerHTML = "<video class='ptt_video' width='100%'  controls>   <source src='/video/"+json_result.video+".mp4' type='video/mp4'>  </video>";
+                    }
+                    else{
+                        document.getElementById("model_vedio").innerHTML = "";
+                    }
+                    modal.style.display = "block";
+
+                     // Make an HTTP request to the Node.js server to ++ 
+                    fetch('/user_view_result', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id: json_result.id })
+                    });
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                }
+            }
+            
+            // Sanitize function
+            function sanitizeData(data) {
+                // Implement your sanitization logic here
+                // You might need to replace certain characters or escape them
+                // For example, replacing newline characters with "\\n"
+                let sanitizedData = data.replace(/\n/g, "\\n");    
+                return sanitizedData;
+            }
+            
+
+            // Get the modal
+            let modal = document.getElementById("myModal");
+
+            // Get the button that opens the modal
+
+            // Get the <span> element that closes the modal
+            let span = document.getElementsByClassName("close")[0];
+
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+        </script>
+    </body>
+
+</html>

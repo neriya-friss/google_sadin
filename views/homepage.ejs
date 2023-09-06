@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="rtl">
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
@@ -7,43 +7,43 @@
         <!-- Bootstrap CSS -->
         <link href="/stylesheets/bootstrap-5.0.2-dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="/stylesheets/style.css"> 
-        <title> hatmaz </title>
+        <title> Google sadin </title>
     </head>
+
     <body>
-
         <div class="container">
-            <h1 class="mt-5 mb-5 text-center text-primary"><b> התחברות למערכת חתמ"צ </b></h1>
-
-            <div class="row mt-5">
-                <div class="col-md-3">&nbsp;</div>
-                <div class="col-md-6">
-                <% if(session.user_id) { %>
-                    <h1>אתה כבר מחובר...</h1>
-                    <a href="/logout" class="btn btn-primary">Logout</a>
-                <% } else { %>
-
-                    <div class="card" dir="rtl">
-                        <div class="card-header">התחברות</div>
+            <div id="googleimg">
+                <h2 class="google-logo">ס<span style="color: #ea4335">ד</span><span style="color: #fbbc05">י</span><span style="color: #34a853; margin-left:15px;">ן</span>    ד<span style="color: #ea4335">ג</span><span style="color: #fbbc05">י</span><span style="color: #34a853">ט</span>ל<span style="color: #ea4335">י</h2>
+            </div>
+            <!-- Search bar -->
+            <form id="searchForm" method="post" action="/user_search">
+                <input id="inputspan" type="text" name="search_value" placeholder="אפשר להקליד שאלה או נושא לחיפוש" required><br>
+            </form>
+            <% for(var i = 0; i < results.length; i++) { %>
+                <div class="col-md-4 text-center">
+                    <div class="card card-01">
                         <div class="card-body">
-                            <form method="post" action="/login">
-                                <div class="mb-3">
-                                    <label>שם משתמש</label>
-                                    <input type="text" name="user_name" class="form-control" />
-                                </div>
-                                <div class="mb-3">
-                                    <label>סיסמה</label>
-                                    <input type="password" name="user_password" class="form-control" />
-                                </div>
-                                <div class="mb-3 text-center">
-                                    <input type="submit" class="btn btn-primary form_bth" value="התחבר" />
-                                </div>
-                            </form>
+                            <p> <%= results[i].question %></p>
+                            <pre class="card-title"> <%= results[i].answer %> </pre>
+                            <a href="<%=results[i].some_link %> "> </a>
                         </div>
                     </div>
-
-                <% } %>
                 </div>
-            </div>
+            <% } %>  
         </div>
+
+        <script>
+            const searchInput = document.getElementById('inputspan');
+            const searchForm = document.getElementById('searchForm');
+    
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    if(searchInput.val() != ''){
+                    event.preventDefault(); // Prevent default form submission
+                    searchForm.submit(); // Submit the form
+                    }
+                }
+            });
+        </script>
     </body>
 </html>

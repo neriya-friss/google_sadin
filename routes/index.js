@@ -1,60 +1,94 @@
 const fs = require('fs')
 var express = require('express');
 var router = express.Router();
-var XLSX = require('node-xlsx')
-var moment = require('moment');
 
-const Pool = require('pg').Pool
-const database = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'google_sadin',
-  password: 'Er325242',
-  port: 5432,
-})
+////// define the connection by use public/db_connection.json
+const { Pool } = require('pg');
+let database;
+// Read the config.json file
+fs.readFile('public/db_connection.json', 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading db_connection file:', err);
+    return;
+  }
+  try {
+    const config = JSON.parse(data);
+    // Create a database connection using the extracted parameters
+    database = new Pool(config);
+  } catch (parseErr) {
+    console.error('Error parsing db_connection JSON:', parseErr);
+  }
+});
 
 let text_to_search = '';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('homepage', { title: 'home page', session : req.session });
-});
-
-/*
-router.post('/edit_cube', function(req, res, next){
-    let cube_id = req.body.cube_id;
-    let cube_title = req.body.cube_title;
-    let cube_content = req.body.cube_content;
-    let cube_grade = req.body.cube_grade;
-    let user_update = req.session.user_name;
-    let cube_position = req.body.cube_position;
-    let cube_update_time = moment().format('YYYY-MM-DD HH:mm:ss Z');
-
-    if(cube_position ==''){
-        query = ` 
-        UPDATE public.cubes
-        SET title= '${cube_title}', content='${cube_content}', grade='${cube_grade}', user_update='${user_update}', last_update_time='${cube_update_time}'
-        WHERE cube_id = '${cube_id}'`;
-    }
-    else{
-        query = ` 
-        UPDATE public.cubes
-        SET title= '${cube_title}', content='${cube_content}', grade='${cube_grade}', user_update='${user_update}', last_update_time='${cube_update_time}', position='${cube_position}'
-        WHERE cube_id = '${cube_id}'`;
-    }
-    console.log(query);
-    database.query(query, (error) => {
+    query = `SELECT * 
+    FROM public.google_sadin 
+    LIMIT 10;`
+    user_text_to_search = text_to_search;
+    database.query(query, (error, data) => {
         if (error) {
-            throw error
+          throw error
         }
         else{
-            console.log("update cube - ", cube_id);
-        }
+            console.log("sucsses!!");
+            results = data.rows;
+        } 
+        console.log(results)
+        res.render('homepage', { user_text_to_search: user_text_to_search , results : '' });
     });
-    res.redirect('welcom');
 });
 
-*/
+router.post('/user_search', function(req, res, next){
+    text_to_search = req.body.search_value
+    console.log("text_to_search:", text_to_search);
+    res.redirect('/homepage_search');
+});
+
+router.get('/homepage_search', function(req, res, next) {
+    query = `
+    SELECT *, similarity(REPLACE('${text_to_search}', '?', ''), question) AS relevance_score
+    FROM public.google_sadin
+    WHERE REPLACE('${text_to_search}', '?', '') % question 
+    /* WHERE similarity(REPLACE('${text_to_search}', '?', ''), question) > 0 */
+    ORDER BY relevance_score DESC
+    LIMIT 10;`
+
+    user_text_to_search = text_to_search;
+    text_to_search ='';
+    database.query(query, (error, data) => {
+        if (error) {
+          throw error
+        }
+        else{
+            console.log("sucsses!!");
+            results = data.rows;
+        } 
+        //console.log(results)
+    //res.render('homepage', { user_text_to_search: user_text_to_search , results : results });
+    res.render('results', { user_text_to_search: user_text_to_search , results : results });
+  });
+});
+
+router.post('/user_view_result', function(req, res, next){
+  query = `
+    UPDATE public.google_sadin
+    SET search_counter = search_counter+1
+    WHERE id='${req.body.id}';
+    `
+        database.query(query, (error, data) => {
+          if (error) {
+            throw error
+          }
+          else{
+            console.log("user open id:",  req.body.id);
+              results = data.rows;
+          } 
+      res.redirect('/homepage_search');
+    });
+});
 
 module.exports = router;
 

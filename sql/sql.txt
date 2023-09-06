@@ -1,0 +1,48 @@
+
+SELECT * 
+    FROM public.google_sadin
+    WHERE EXISTS (
+        SELECT *
+        FROM unnest(string_to_array(REPLACE('${text_to_search}', '?', ''), ' ')) AS user_word
+        WHERE EXISTS (
+            SELECT *
+            FROM unnest(search_tags) AS tag
+            WHERE tag LIKE '%' || user_word || '%'
+        )
+    );
+
+//////////////////////////
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+SELECT
+  	*,
+    similarity('Grafana', question) AS relevance_score
+FROM public.google_sadin
+/*WHERE 'איך מוסיפים אירוע' % question */
+/*WHERE similarity('Grafana', question) >= 0.4 */
+WHERE similarity('Grafana', question) > 0
+ORDER BY relevance_score DESC
+LIMIT 10;
+
+
+////////////////////
+
+-- Table: public.google_sadin
+
+-- DROP TABLE public.google_sadin;
+
+CREATE TABLE public.google_sadin
+(
+    id integer NOT NULL DEFAULT nextval('google_sadin_id_seq'::regclass),
+    question text COLLATE pg_catalog."default",
+    answer text COLLATE pg_catalog."default",
+    some_link text COLLATE pg_catalog."default",
+    search_tags text[] COLLATE pg_catalog."default",
+    search_counter numeric,
+    CONSTRAINT google_sadin_pkey PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE public.google_sadin
+    OWNER to postgres;

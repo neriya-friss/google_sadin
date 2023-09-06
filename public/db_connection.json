@@ -1,0 +1,7 @@
+{
+    "user": "postgres",
+    "host": "localhost",
+    "database": "google_sadin",
+    "password": "Er325242",
+    "port": 5432
+}
